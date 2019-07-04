@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<log4j:configuration>
+    <!--  接入log4j.xml参数配置说明： -->
+    <!-- ========================== 自定义输出格式说明================================ -->  
+    <!-- %p 输出优先级，即DEBUG，INFO，WARN，ERROR，FATAL -->  
+    <!-- #%r 输出自应用启动到输出该log信息耗费的毫秒数  -->  
+    <!-- #%c 输出所属的类目，通常就是所在类的全名 -->  
+    <!-- #%t 输出产生该日志事件的线程名 -->  
+    <!-- #%n 输出一个回车换行符，Windows平台为“\r\n”，Unix平台为“\n” -->  
+    <!-- #%d 输出日志时间点的日期或时间，默认格式为ISO8601，也可以在其后指定格式，比如：%d{yyy MMM dd HH:mm:ss,SSS}，输出类似：2002年10月18日 22：10：28，921  -->  
+    <!-- #%l 输出日志事件的发生位置，包括类目名、发生的线程，以及在代码中的行数。举例：Testlog4.main(TestLog4.java:10)  -->  
+
+    <!-- 输出日志到控制台 -->
+	<appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="INFO" />
+			<param name="LevelMax" value="ERROR" />
+		</filter>
+	</appender>
+
+	<appender name="debugAppender" class="org.apache.log4j.DailyRollingFileAppender">
+	    <!-- 打印日志文件的位置 -->
+	    <!-- 如果写相对路径，路径是相对于tomcat/bin/catalina.bat的路径。前提是配置到web.xml中。否则直接在workspace对应的项目中-->
+        <!-- ./ 当前目录  (将日志记录到tomcat的bin目录下的logs文件夹；)  ../ 父级目录 (将日志记录到tomcat下的logs文件夹；)    / 根目录(将日志记录到此盘符根目录的logs文件夹；) -->  
+		<param name="File" value="./logs/listener-debug.log" />  
+		<!-- 设置是否在重新启动服务时，在原有日志的基础添加新日志 -->  
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd" />
+		<!-- 缓冲流达到8192个字节才能向文件中写入一次    false 代表不使用缓冲流-->
+		<param name="BufferedIO" value="false" />
+		<param name="BufferSize" value="8192" />
+		<!-- 设置输出文件项目和格式 --> 
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
+		</layout>
+		<!--  日志文件中只有符合过滤器的记录 -->
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="DEBUG" />
+			<param name="LevelMax" value="ERROR" />
+		</filter>
+	</appender>
+
+	<appender name="errorAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/listener-error.log" />
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd" />
+		<param name="BufferedIO" value="false" />
+		<param name="BufferSize" value="8192" />
+		
+		
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss}:%p %t %c - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="ERROR" />
+			<param name="LevelMax" value="ERROR" />
+		</filter>
+	</appender>
+    <!--  给哪个包下面定义logger。 否则logger不生效，不能使用-->
+	<logger name="com.testApp.main">
+		<level value="INFO" />
+		<appender-ref ref="consoleAppender" />
+		<appender-ref ref="debugAppender" />
+		<appender-ref ref="errorAppender" />
+	</logger>
+	
+	<!--  root是所有logger的最顶层父类，
+	同时，如果有"a.b.c"和"a.b"，那么"a.b"就是"a.b.c"的父类得了。
+	就像"com.myweb"就是"com.myweb.project"的父类，在这样的情况下，
+	com.myweb.project的日志也会打印在com.myweb下，
+	解决这个问题的方法就是不继承，如果不继承了，就不会出现这种情况了。-->
+	<root>
+		<level value="INFO" />
+	</root>
+
+</log4j:configuration>

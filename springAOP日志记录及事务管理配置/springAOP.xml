@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<bean id="logInterceptor" class="com.XXXX.app.aop.LogInterceptor" />
+    <!-- 哪些方法 需要记录日志     execution语法格式参考下面-->
+	<bean class="com.XXXXX.spring.config.AspectJBeanFactoryPostProcessor">
+		<property name="adviceBeanName" value="logInterceptor" />
+		<property name="order" value="-1" />
+		<property name="pointcutExpressions">
+			<list>
+				<value>execution( 返回值类型
+					*.save*(参数类型))
+				</value>
+				<value>execution( 返回值类型
+					*.delete*(参数类型))
+				</value>
+				<value>execution( 返回值类型
+					*.update*(参数类型))
+				</value>
+				<value>execution( 返回值类型
+					*.submit*(参数类型))
+				</value>
+			</list>
+		</property>
+	</bean>
+    <!-- transactionManager 是事务管理器 。需要定义transactionManager的bean，transactionManager为bean的ID -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- <tx:method>是进行事务设置的，也就是说哪些方法遵循事务的一致性。 -->
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="submit*" propagation="REQUIRED" />
+			<tx:method name="doService*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+	     <!-- 
+	        	切点(PointCut)
+                                              通知(Advice)定义了切面的什么和何时，切点定义了何处，切点的定义会匹配通知所要织入的一个或多个连接点，我们通常使用明确的类的方法名称来指定这些切点，
+                                              或是利用正则表达式定义匹配的类和方法名称来指定这些切点。
+					切点的格式如下:
+					execution(* com.spring.test.action1.Performer.perform(..))
+						execttion:在方法执行时触发
+						* com.spring.test.action1.Performer.perform(..):特定方法
+						*:返回任意类型
+						com.spring.test.action1.Performer:方法所属类型。
+						perform：此方法
+						..:使用任意参数
+	         -->
+	         
+	     <!-- 任意方法所属类型的任意方法参数是com.dcits.app.data.DataObject,返回类型是任意类型的切点 -->    
+		<aop:pointcut expression="execution( * *.*(参数类型))"
+			id="services" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="services" />
+	</aop:config>
+
+</beans>
